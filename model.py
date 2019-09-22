@@ -2,8 +2,9 @@ import numpy as np
 import torch
 from torch import nn
 from torchvision import datasets, transforms, models
+from imagepathloader import ImagePathLoader
 import torch.nn.functional as F
-
+import pandas as pd
 
 
 def create_datasets(input_size):
@@ -25,17 +26,18 @@ def create_datasets(input_size):
                                                                 std=[0.229, 0.224, 0.225])])
 
 
-    dataset_train = datasets.ImageFolder(root='data/train', transform=preprocessing_train)
-    dataset_valid = datasets.ImageFolder(root='data/valid', transform=preprocessing_test)
-    dataset_test = datasets.ImageFolder(root='data/test', transform=preprocessing_test)
+    dataset_train = datasets.ImageFolder(root='data\\train', transform=preprocessing_train)
+    dataset_valid = datasets.ImageFolder(root='data\\valid', transform=preprocessing_test)
+    #dataset_test = datasets.ImageFolder(root='data/test', transform=preprocessing_test)
+    dataset_test = ImagePathLoader(root='data\\test', transform=preprocessing_test)
 
     dataloader_train = torch.utils.data.DataLoader(dataset_train, batch_size=16, shuffle=True)
     dataloader_valid = torch.utils.data.DataLoader(dataset_valid, batch_size=64, shuffle=True)
-    dataloader_test = torch.utils.data.DataLoader(dataset_test, batch_size=64, shuffle=True)
+    dataloader_test = torch.utils.data.DataLoader(dataset_test, batch_size=64, shuffle=False)
 
     #batch = next(iter(dataloader_train))
     #print(batch)
-    #print(dataset_train.classes)
+    print(dataset_train.classes)
     #print(dataset_train.class_to_idx["melanoma"])
 
     return dataloader_train, dataloader_valid, dataloader_test
@@ -43,7 +45,7 @@ def create_datasets(input_size):
 
 def create_model():
     model = models.resnet50(pretrained=True)
-    print(model)
+    #print(model)
 
     for param in model.parameters():
         param.requires_grad_(False)
@@ -95,18 +97,39 @@ def train_model(model, optimizer, criterion, dataloader_train, dataloader_valid,
 
 
 def test_model(model, dataloader_test):
-    model.eval()
 
+    df = pd.DataFrame({"Id": [], "task_1": [], "task_2": []})
+
+    model.eval()
     with torch.no_grad():
-        for X, y in dataloader_test:
+        accuracy = 0
+        for X, y, paths in dataloader_test:
+            print("paths:",paths)
             y_hat = model(X)
-            prob = F.softmax(y_hat, dim=1)
+            probs = F.softmax(y_hat, dim=1)
+            print("probs:", probs.shape)
+            class_ids = y_hat.argmax(dim=1)
+            eq = class_ids == y
+            accuracy += eq.sum()
+            #print("class_id:", class_id.shape)
+            #prob = probs[:, class_id]
+            melanoma_prob = probs[:, 0]
+            keratosis_prob = probs[:, 2]
+            df_part = pd.DataFrame({"Id": paths, 
+                                    "task_1": melanoma_prob.numpy(),
+                                    "task_2": keratosis_prob.numpy()})
+
+            df.append(df_part)
+
+        df.to_csv("predictions.csv")
+        print("Test accuracy: ", accuracy/len(dataloader_test.dataset))
+
 
 
 input_size = 224
 dataloader_train, dataloader_valid, dataloader_test = create_datasets(input_size)
 model, optimizer, criterion = create_model()
-train_model(model, optimizer, criterion, dataloader_train, dataloader_valid, 3, "model_checkpoint.pt")
+#train_model(model, optimizer, criterion, dataloader_train, dataloader_valid, 3, "model_checkpoint2.pt")
 #model = torch.load("model_checkpoint.pt")
 model.load_state_dict(torch.load("model_checkpoint.pt"))
 test_model(model, dataloader_test)
