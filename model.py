@@ -35,8 +35,6 @@ def create_datasets(input_size):
     dataloader_valid = torch.utils.data.DataLoader(dataset_valid, batch_size=64, shuffle=True)
     dataloader_test = torch.utils.data.DataLoader(dataset_test, batch_size=64, shuffle=False)
 
-    #batch = next(iter(dataloader_train))
-    #print(batch)
     print(dataset_train.classes)
     #print(dataset_train.class_to_idx["melanoma"])
 
@@ -130,7 +128,6 @@ input_size = 299 # inception-v3 expects 299x299 images
 dataloader_train, dataloader_valid, dataloader_test = create_datasets(input_size)
 model, optimizer, criterion = create_model()
 train_model(model, optimizer, criterion, dataloader_train, dataloader_valid, 5, "model_checkpoint2.pt")
-##model = torch.load("model_checkpoint.pt")
 model.load_state_dict(torch.load("model_checkpoint2.pt"))
 test_model(model, dataloader_test, "predictions2.csv")
 
