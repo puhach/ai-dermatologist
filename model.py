@@ -44,15 +44,16 @@ def create_datasets(input_size):
 
 
 def create_model():
-    model = models.resnet50(pretrained=True)
-    #print(model)
+    #model = models.resnet50(pretrained=True)
+    model = models.inception_v3(pretrained=True, aux_logits=False)
+    print(model)
 
     for param in model.parameters():
         param.requires_grad_(False)
 
     model.fc = nn.Linear(in_features=2048, out_features=3)
     
-    optimizer = torch.optim.Adam(model.fc.parameters(), lr=0.0003)
+    optimizer = torch.optim.Adam(model.fc.parameters(), lr=0.003)
     criterion = nn.CrossEntropyLoss(reduction='sum')
 
     return model, optimizer, criterion
@@ -88,7 +89,6 @@ def train_model(model, optimizer, criterion, dataloader_train, dataloader_valid,
                 accuracy += eq.sum().item()
 
             #print(f"Validation loss: {valid_loss/len(dataloader_valid.dataset)} accuracy: {accuracy/len(dataloader_valid.dataset)}")
-            #print("Validation loss: %f accuracy: %f" % (valid_loss/len(dataloader_valid.dataset), accuracy/len(dataloader_valid.dataset)))
             print("Validation loss: {0} accuracy: {1}".format(valid_loss/len(dataloader_valid.dataset), accuracy/len(dataloader_valid.dataset)))
 
             if valid_loss < best_loss:
@@ -96,43 +96,43 @@ def train_model(model, optimizer, criterion, dataloader_train, dataloader_valid,
                 torch.save(model.state_dict(), save_path)
 
 
-def test_model(model, dataloader_test):
+def test_model(model, dataloader_test, report_path):
 
-    df = pd.DataFrame({"Id": [], "task_1": [], "task_2": []})
-
+    df = pd.DataFrame(columns=["Id", "task_1", "task_2"])
+    
     model.eval()
     with torch.no_grad():
         accuracy = 0
         for X, y, paths in dataloader_test:
-            print("paths:",paths)
             y_hat = model(X)
+            
             probs = F.softmax(y_hat, dim=1)
-            print("probs:", probs.shape)
             class_ids = y_hat.argmax(dim=1)
             eq = class_ids == y
             accuracy += eq.sum()
-            #print("class_id:", class_id.shape)
-            #prob = probs[:, class_id]
+
             melanoma_prob = probs[:, 0]
             keratosis_prob = probs[:, 2]
+
             df_part = pd.DataFrame({"Id": paths, 
                                     "task_1": melanoma_prob.numpy(),
                                     "task_2": keratosis_prob.numpy()})
 
-            df.append(df_part)
+            df = df.append(df_part, ignore_index=True)
 
-        df.to_csv("predictions.csv")
-        print("Test accuracy: ", accuracy/len(dataloader_test.dataset))
+        df.to_csv(report_path, index=False)
+        print("Test accuracy: ", accuracy.item()/len(dataloader_test.dataset))
 
 
 
-input_size = 224
+#input_size = 224
+input_size = 299 # inception-v3 expects 299x299 images
 dataloader_train, dataloader_valid, dataloader_test = create_datasets(input_size)
 model, optimizer, criterion = create_model()
-#train_model(model, optimizer, criterion, dataloader_train, dataloader_valid, 3, "model_checkpoint2.pt")
-#model = torch.load("model_checkpoint.pt")
-model.load_state_dict(torch.load("model_checkpoint.pt"))
-test_model(model, dataloader_test)
+train_model(model, optimizer, criterion, dataloader_train, dataloader_valid, 5, "model_checkpoint2.pt")
+##model = torch.load("model_checkpoint.pt")
+model.load_state_dict(torch.load("model_checkpoint2.pt"))
+test_model(model, dataloader_test, "predictions2.csv")
 
 
 
