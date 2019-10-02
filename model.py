@@ -38,6 +38,14 @@ def create_datasets(input_size):
     print(dataset_train.classes)
     #print(dataset_train.class_to_idx["melanoma"])
 
+
+    #mytransform = transforms.Compose([transforms.ToTensor()])
+    #mydataset = datasets.ImageFolder(root='data\\valid', transform=mytransform)
+    #mydataloader = torch.utils.data.DataLoader(mydataset, batch_size=32, shuffle=True)
+    #for batch, labels in mydataloader:
+    #    print(batch.shape)
+
+
     return dataloader_train, dataloader_valid, dataloader_test
 
 
@@ -51,7 +59,7 @@ def create_model():
 
     model.fc = nn.Linear(in_features=2048, out_features=3)
     
-    optimizer = torch.optim.Adam(model.fc.parameters(), lr=0.003)
+    optimizer = torch.optim.Adam(model.fc.parameters(), lr=0.001)
     criterion = nn.CrossEntropyLoss(reduction='sum')
 
     return model, optimizer, criterion
