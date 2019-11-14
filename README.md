@@ -15,7 +15,7 @@ Lack of access to affordable, quality healthcare is a global problem. Many famil
 
 Skin cancer presents early warning signs in the form of suspicious marks or abnormal growths on the skin. Without informed examination, it is unclear if an abnormal mole should be cause for concern or can be safely ignored. For those with cancerous lesions, early detection is crucial: while the 5-year survival rates for skin cancer are high (about 98 percent) when discovered in the early stages, the survival rate falls to 18 percent if discovered in the most advanced stages.
 
-This project presents an algorithm that can visually diagnose [melanoma](http://www.skincancer.org/skin-cancer-information/melanoma), the deadliest form of skin cancer.  In particular, your algorithm will distinguish this malignant skin tumor from two types of benign lesions ([nevi](http://missinglink.ucsf.edu/lm/dermatologyglossary/nevus.html) and [seborrheic keratoses](https://www.aad.org/public/diseases/bumps-and-growths/seborrheic-keratoses)). 
+This project presents an algorithm that can visually diagnose [melanoma](http://www.skincancer.org/skin-cancer-information/melanoma), the deadliest form of skin cancer.  In particular, the algorithm will distinguish this malignant skin tumor from two types of benign lesions ([nevi](http://missinglink.ucsf.edu/lm/dermatologyglossary/nevus.html) and [seborrheic keratoses](https://www.aad.org/public/diseases/bumps-and-growths/seborrheic-keratoses)). 
 
 The data and objective are pulled from the [2017 ISIC Challenge on Skin Lesion Analysis Towards Melanoma Detection](https://challenge.kitware.com/#challenge/583f126bcad3a51cc66c8d9a).  As part of the challenge, participants were tasked to design an algorithm to diagnose skin lesion images as one of three different skin diseases (melanoma, nevus, or seborrheic keratosis).  In this project, I create a model to generate my own predictions.
 
@@ -23,9 +23,9 @@ The data and objective are pulled from the [2017 ISIC Challenge on Skin Lesion A
 
 ## Getting Started
 
-1. Clone the [repository](https://github.com/udacity/dermatologist-ai) and create a `data/` folder to hold the dataset of skin images.  
+1. Clone the [repository](https://github.com/puhach/ai-dermatologist.git) and create a `data/` folder to hold the dataset of skin images.  
 ```text
-git clone https://github.com/udacity/dermatologist-ai.git
+git clone https://github.com/puhach/ai-dermatologist.git
 mkdir data; cd data
 ```
 2. Create folders to hold the training, validation, and test images.
@@ -53,15 +53,15 @@ If you like to read more about some of the algorithms that were successful in th
 
 While the original challenge provided additional data (such as the gender and age of the patients), I use only image data in this project.  If you want to download this additional patient data, you may do so at the competition [website](https://challenge.kitware.com/#phase/5840f53ccad3a51cc66c8dab).
 
-All three of the above teams increased the number of images in the training set with additional data sources. If you'd like to expand your training set, you are encouraged to begin with the [ISIC Archive](https://isic-archive.com/#images).
+All three of the above teams increased the number of images in the training set with additional data sources. If you like to expand your training set, you are encouraged to begin with the [ISIC Archive](https://isic-archive.com/#images).
 
 ## Evaluation
 
-Inspired by the ISIC challenge, your algorithm will be ranked according to three separate categories.
+Inspired by the ISIC challenge, the algorithm will be ranked according to three separate categories.
 
 #### Category 1: ROC AUC for Melanoma Classification
 
-In the first category, we will gauge the ability of your CNN to distinguish between malignant melanoma and the benign skin lesions (nevus, seborrheic keratosis) by calculating the area under the receiver operating characteristic curve ([ROC AUC](http://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html)) corresponding to this binary classification task.
+In the first category, we will gauge the ability of the model to distinguish between malignant melanoma and the benign skin lesions (nevus, seborrheic keratosis) by calculating the area under the receiver operating characteristic curve ([ROC AUC](http://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html)) corresponding to this binary classification task.
 
 To learn more about ROC (Receiver Operating Characteristic) curves check out the documentation in [scikit-learn](http://scikit-learn.org/stable/auto_examples/model_selection/plot_roc.html#sphx-glr-auto-examples-model-selection-plot-roc-py) or read [this Wikipedia article](https://en.wikipedia.org/wiki/Receiver_operating_characteristic).
 
@@ -87,7 +87,7 @@ The top scores in this category (from the ISIC competition) can be found in the 
 
 ![Category 3 Rankings][image4]
 
-## Getting your Results
+## Getting Results
 
 When the model has been trained, a CSV file is created to store the test predictions. It has exactly 600 rows, each corresponding to a different test image, **plus** a header row. 
 
